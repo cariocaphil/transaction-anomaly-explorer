@@ -27,6 +27,10 @@ if selected_country == "All":
 else:
     filtered_df = df[df["country"] == selected_country]
 
+filtered_anomalies = anomalies[
+    anomalies["transaction_id"].isin(filtered_df["transaction_id"])
+]
+
 st.subheader("Transactions")
 st.dataframe(filtered_df)
 
@@ -35,4 +39,4 @@ chart_data = filtered_df.set_index("transaction_id")["amount"]
 st.bar_chart(chart_data)
 
 st.subheader("Detected anomalies")
-st.dataframe(anomalies)
+st.dataframe(filtered_anomalies)
