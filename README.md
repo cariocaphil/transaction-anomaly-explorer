@@ -2,9 +2,11 @@
 
 A learning project for exploring transaction data and detecting unusual transactions using Python and Pandas.
 
-The project starts with simple statistical anomaly detection and gradually evolves toward an interactive, containerized application with ML and GenAI capabilities.
+The project starts with statistical anomaly detection and gradually evolves toward an interactive, containerized application with ML and GenAI capabilities.
 
 ## Stack
+
+Current:
 
 * Python
 * uv
@@ -16,6 +18,7 @@ Planned:
 
 * Streamlit
 * Podman
+* Azure Container Apps
 * scikit-learn
 * LLM integration
 
@@ -70,7 +73,7 @@ Then open:
 notebooks/transaction_exploration.ipynb
 ```
 
-The notebook is used to explore the transaction data, inspect distributions, and experiment with anomaly-detection approaches before moving useful logic into reusable Python modules.
+The notebook is used to explore transaction data, inspect distributions, and experiment with anomaly-detection approaches before moving useful logic into reusable Python modules.
 
 ## Run Tests
 
@@ -89,6 +92,35 @@ upper threshold = Q3 + 1.5 × IQR
 ```
 
 Transactions above the upper threshold are flagged as anomalies.
+
+## Planned Application Architecture
+
+The final application will use Streamlit as the Python web application framework.
+
+For deployment, the Streamlit application will be packaged as a container and deployed to Azure Container Apps.
+
+```text
+Browser
+   │
+   ▼
+Azure Container Apps
+   │
+   │ HTTPS / ingress
+   ▼
+Podman-built container
+   │
+   ▼
+Streamlit
+   │
+   ├── UI
+   ├── Python application logic
+   └── anomaly visualization
+          │
+          ▼
+   Pandas / ML / LLM
+```
+
+Podman is used locally to build and test the container image. The container image provides a reproducible runtime that can then be deployed to Azure Container Apps.
 
 ## Roadmap
 
@@ -117,54 +149,81 @@ Transactions above the upper threshold are flagged as anomalies.
 * [ ] Show detected anomalies
 * [ ] Add basic metrics and filters
 * [ ] Visualize transaction amounts and anomalies
+* [ ] Reuse the existing Python analysis layer from the Streamlit application
 
 ### PR 3 — Containerization with Podman
 
 * [ ] Add Containerfile
-* [ ] Build the application image with Podman
-* [ ] Run Streamlit inside the container
+* [ ] Package Streamlit and the Python application into a container image
+* [ ] Build the image with Podman
+* [ ] Run the Streamlit application locally as a container
+* [ ] Configure the Streamlit port for container deployment
 * [ ] Document the local container workflow
 
-### PR 4 — ML Anomaly Detection
+### PR 4 — Azure Container Apps Deployment
+
+* [ ] Push the container image to a container registry
+* [ ] Create an Azure Container App
+* [ ] Deploy the Streamlit container
+* [ ] Configure external HTTPS ingress
+* [ ] Configure environment variables and secrets
+* [ ] Verify the application through its public Azure URL
+
+### PR 5 — ML Anomaly Detection
 
 * [ ] Add scikit-learn
 * [ ] Experiment with Isolation Forest in Jupyter
 * [ ] Implement ML-based anomaly detection
 * [ ] Add anomaly scores
 * [ ] Compare IQR and Isolation Forest results
+* [ ] Expose the ML results through Streamlit
 
-### PR 5 — AI Anomaly Explanations
+### PR 6 — AI Anomaly Explanations
 
 * [ ] Add LLM integration
 * [ ] Generate human-readable explanations for detected anomalies
 * [ ] Keep anomaly detection separate from LLM explanation
-* [ ] Display explanations in Streamlit
+* [ ] Display AI-generated explanations in Streamlit
+* [ ] Keep credentials outside the application code
 
-### PR 6 — Natural-Language Analysis
+### PR 7 — Natural-Language Analysis
 
 * [ ] Add a natural-language query interface
 * [ ] Convert user questions into structured filters
 * [ ] Support queries such as "Show unusual transactions from Germany"
-* [ ] Add validation and guardrails around generated filters
+* [ ] Validate generated filters before execution
+* [ ] Add guardrails around AI-generated queries
 
 ## Learning Goals
 
-This project is intended to demonstrate the progression from exploratory data analysis to a deployable AI-enabled application:
+The project demonstrates the progression from exploratory Python work to a deployed AI-enabled application:
 
 ```text
 Python + Pandas
-      ↓
+      │
+      ▼
 Jupyter Exploration
-      ↓
-Reusable Analysis
-      ↓
+      │
+      ▼
+Reusable Python Analysis
+      │
+      ▼
 Streamlit Application
-      ↓
+      │
+      ▼
 Podman Container
-      ↓
+      │
+      ▼
+Azure Container Apps
+      │
+      ▼
 ML Anomaly Detection
-      ↓
+      │
+      ▼
 LLM Explanations
-      ↓
+      │
+      ▼
 Natural-Language Analysis
 ```
+
+The deployment path is intentionally container-based: **Streamlit provides the application framework, Podman provides the container image, and Azure Container Apps provides the managed cloud runtime.**
