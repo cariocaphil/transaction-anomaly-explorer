@@ -15,6 +15,7 @@ transaction-anomaly-explorer = "transaction_anomaly_explorer.analysis:main"
 dev = [
     "jupyter>=1.1.1",
     "pytest>=9.1.1",
+    "ruff>=0.16.3",
 ]
 
 [tool.setuptools.packages.find]
