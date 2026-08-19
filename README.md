@@ -126,73 +126,78 @@ Podman is used locally to build and test the container image. The container imag
 
 ### Initial Setup ✅
 
-* [x] Initialize Python project with uv
-* [x] Add Pandas
-* [x] Add initial synthetic transaction dataset
-* [x] Add basic transaction analysis
-* [x] Set up project structure
+- [x] Initialize Python project with uv
+- [x] Add Pandas
+- [x] Add initial synthetic transaction dataset
+- [x] Add basic transaction analysis
+- [x] Set up project structure
 
 ### PR 1 — Jupyter Exploration ✅
 
-* [x] Add JupyterLab
-* [x] Create transaction exploration notebook
-* [x] Explore distributions and summary statistics
-* [x] Experiment with IQR-based anomaly detection
-* [x] Expand the synthetic dataset
-* [x] Move anomaly logic into reusable Python code
-* [x] Add pytest coverage
+- [x] Add JupyterLab
+- [x] Create transaction exploration notebook
+- [x] Explore distributions and summary statistics
+- [x] Experiment with IQR-based anomaly detection
+- [x] Expand the synthetic dataset
+- [x] Move anomaly logic into reusable Python code
+- [x] Add pytest coverage
 
-### PR 2 — Streamlit Dashboard
+### PR 2 — Continuous Integration
 
-* [ ] Add Streamlit
-* [ ] Display transaction dataset
-* [ ] Show detected anomalies
-* [ ] Add basic metrics and filters
-* [ ] Visualize transaction amounts and anomalies
-* [ ] Reuse the existing Python analysis layer from the Streamlit application
+- [ ] Add GitHub Actions workflow
+- [ ] Set up Python and uv in CI
+- [ ] Install dependencies with `uv sync`
+- [ ] Run pytest automatically
+- [ ] Run CI on pushes and pull requests
+- [ ] Add linting with Ruff
 
-### PR 3 — Containerization with Podman
+### PR 3 — Streamlit Dashboard
 
-* [ ] Add Containerfile
-* [ ] Package Streamlit and the Python application into a container image
-* [ ] Build the image with Podman
-* [ ] Run the Streamlit application locally as a container
-* [ ] Configure the Streamlit port for container deployment
-* [ ] Document the local container workflow
+- [ ] Add Streamlit
+- [ ] Display transaction dataset
+- [ ] Show detected anomalies
+- [ ] Add basic metrics and filters
+- [ ] Visualize transaction amounts and anomalies
+- [ ] Reuse the existing Python analysis layer
 
-### PR 4 — Azure Container Apps Deployment
+### PR 4 — Containerization with Podman
 
-* [ ] Push the container image to a container registry
-* [ ] Create an Azure Container App
-* [ ] Deploy the Streamlit container
-* [ ] Configure external HTTPS ingress
-* [ ] Configure environment variables and secrets
-* [ ] Verify the application through its public Azure URL
+- [ ] Add Containerfile
+- [ ] Package the Streamlit application
+- [ ] Build the image with Podman
+- [ ] Run the Streamlit application locally as a container
+- [ ] Document the local container workflow
 
-### PR 5 — ML Anomaly Detection
+### PR 5 — Azure Container Apps Deployment
 
-* [ ] Add scikit-learn
-* [ ] Experiment with Isolation Forest in Jupyter
-* [ ] Implement ML-based anomaly detection
-* [ ] Add anomaly scores
-* [ ] Compare IQR and Isolation Forest results
-* [ ] Expose the ML results through Streamlit
+- [ ] Push the container image to a container registry
+- [ ] Create an Azure Container App
+- [ ] Deploy the Streamlit container
+- [ ] Configure external HTTPS ingress
+- [ ] Configure environment variables and secrets
+- [ ] Verify the application through its public Azure URL
 
-### PR 6 — AI Anomaly Explanations
+### PR 6 — ML Anomaly Detection
 
-* [ ] Add LLM integration
-* [ ] Generate human-readable explanations for detected anomalies
-* [ ] Keep anomaly detection separate from LLM explanation
-* [ ] Display AI-generated explanations in Streamlit
-* [ ] Keep credentials outside the application code
+- [ ] Add scikit-learn
+- [ ] Experiment with Isolation Forest in Jupyter
+- [ ] Implement ML-based anomaly detection
+- [ ] Add anomaly scores
+- [ ] Compare IQR and Isolation Forest results
 
-### PR 7 — Natural-Language Analysis
+### PR 7 — AI Anomaly Explanations
 
-* [ ] Add a natural-language query interface
-* [ ] Convert user questions into structured filters
-* [ ] Support queries such as "Show unusual transactions from Germany"
-* [ ] Validate generated filters before execution
-* [ ] Add guardrails around AI-generated queries
+- [ ] Add LLM integration
+- [ ] Generate human-readable explanations for detected anomalies
+- [ ] Keep anomaly detection separate from LLM explanation
+- [ ] Display explanations in Streamlit
+
+### PR 8 — Natural-Language Analysis
+
+- [ ] Add a natural-language query interface
+- [ ] Convert user questions into structured filters
+- [ ] Validate generated filters before execution
+- [ ] Add guardrails around AI-generated queries
 
 ## Learning Goals
 
