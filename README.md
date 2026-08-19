@@ -13,10 +13,10 @@ Current:
 * Pandas
 * JupyterLab
 * pytest
+* Streamlit
 
 Planned:
 
-* Streamlit
 * Podman
 * Azure Container Apps
 * scikit-learn
@@ -74,6 +74,13 @@ notebooks/transaction_exploration.ipynb
 ```
 
 The notebook is used to explore transaction data, inspect distributions, and experiment with anomaly-detection approaches before moving useful logic into reusable Python modules.
+
+## Run the Streamlit App
+
+Start the application locally:
+
+```bash
+PYTHONPATH=src uv run streamlit run app.py
 
 ## Run Tests
 
@@ -144,18 +151,18 @@ Podman is used locally to build and test the container image. The container imag
 
 ### PR 2 — Continuous Integration
 
-- [ ] Add GitHub Actions workflow
-- [ ] Set up Python and uv in CI
-- [ ] Install dependencies with `uv sync`
-- [ ] Run pytest automatically
-- [ ] Run CI on pushes and pull requests
-- [ ] Add linting with Ruff
+- [x] Add GitHub Actions workflow
+- [x] Set up Python and uv in CI
+- [x] Install dependencies with `uv sync`
+- [x] Run pytest automatically
+- [x] Run CI on pushes and pull requests
+- [x] Add linting with Ruff
 
 ### PR 3 — Streamlit Dashboard
 
-- [ ] Add Streamlit
-- [ ] Display transaction dataset
-- [ ] Show detected anomalies
+- [x] Add Streamlit
+- [x] Display transaction dataset
+- [x] Show detected anomalies
 - [ ] Add basic metrics and filters
 - [ ] Visualize transaction amounts and anomalies
 - [ ] Reuse the existing Python analysis layer
