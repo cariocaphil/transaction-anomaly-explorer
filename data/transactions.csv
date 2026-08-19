@@ -1,0 +1,6 @@
+transaction_id,customer_id,amount,country,merchant_category
+T001,C001,42.50,Germany,Groceries
+T002,C002,125.00,Germany,Electronics
+T003,C001,7800.00,Germany,Electronics
+T004,C003,65.00,France,Restaurant
+T005,C002,9200.00,Brazil,Travel
