@@ -163,9 +163,9 @@ Podman is used locally to build and test the container image. The container imag
 - [x] Add Streamlit
 - [x] Display transaction dataset
 - [x] Show detected anomalies
-- [ ] Add basic metrics and filters
-- [ ] Visualize transaction amounts and anomalies
-- [ ] Reuse the existing Python analysis layer
+- [x] Add basic metrics and filters
+- [x] Visualize transaction amounts and anomalies
+- [x] Reuse the existing Python analysis layer
 
 ### PR 4 — Containerization with Podman
 
