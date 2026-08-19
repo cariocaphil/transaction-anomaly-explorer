@@ -13,8 +13,12 @@ transaction-anomaly-explorer = "transaction_anomaly_explorer.analysis:main"
 
 [dependency-groups]
 dev = [
+    "jupyter>=1.1.1",
     "pytest>=9.1.1",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

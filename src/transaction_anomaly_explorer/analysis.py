@@ -1,10 +1,19 @@
 import pandas as pd
 
-df = pd.read_csv("data/transactions.csv")
 
-print(df)
-print(df["amount"].mean())
+def detect_amount_anomalies(df: pd.DataFrame) -> pd.DataFrame:
+    q1 = df["amount"].quantile(0.25)
+    q3 = df["amount"].quantile(0.75)
 
-high_value = df[df["amount"] > 5000]
+    iqr = q3 - q1
+    upper_threshold = q3 + 1.5 * iqr
 
-print(high_value)
+    return df[df["amount"] > upper_threshold]
+
+
+if __name__ == "__main__":
+    df = pd.read_csv("data/transactions.csv")
+
+    anomalies = detect_amount_anomalies(df)
+
+    print(anomalies)
