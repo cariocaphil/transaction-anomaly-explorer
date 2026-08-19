@@ -14,10 +14,10 @@ Current:
 * JupyterLab
 * pytest
 * Streamlit
+* Podman
 
 Planned:
 
-* Podman
 * Azure Container Apps
 * scikit-learn
 * LLM integration
@@ -87,6 +87,26 @@ PYTHONPATH=src uv run streamlit run app.py
 ```bash
 uv run pytest
 ```
+
+## Run with Podman
+
+Build the container image:
+
+```bash
+podman build -t transaction-anomaly-explorer .
+```
+
+Run the container:
+
+```bash
+podman run --rm -p 8501:8501 transaction-anomaly-explorer
+```
+
+Then open:
+
+`http://localhost:8501`
+
+The container packages the Streamlit application, Python runtime, project dependencies, analysis code, and transaction data into a reproducible runtime environment.
 
 ## Current Anomaly Detection
 
@@ -169,11 +189,11 @@ Podman is used locally to build and test the container image. The container imag
 
 ### PR 4 — Containerization with Podman
 
-- [ ] Add Containerfile
-- [ ] Package the Streamlit application
-- [ ] Build the image with Podman
-- [ ] Run the Streamlit application locally as a container
-- [ ] Document the local container workflow
+- [x] Add Containerfile
+- [x] Package the Streamlit application
+- [x] Build the image with Podman
+- [x] Run the Streamlit application locally as a container
+- [x] Document the local container workflow
 
 ### PR 5 — Azure Container Apps Deployment
 
