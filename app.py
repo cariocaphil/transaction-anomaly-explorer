@@ -45,6 +45,10 @@ if missing_columns:
     )
     st.stop()
 
+if df.empty:
+    st.error("CSV contains no transaction rows.")
+    st.stop()
+
 anomalies = detect_amount_anomalies(df)
 
 total_transactions = len(df)
