@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from pandas.errors import ParserError
 
 from transaction_anomaly_explorer.analysis import detect_amount_anomalies
 from transaction_anomaly_explorer.validation import validate_transactions
@@ -25,7 +26,7 @@ else:
 
     try:
         df = pd.read_csv(uploaded_file)
-    except Exception as exc:
+    except (ParserError, UnicodeDecodeError, OSError) as exc:
         st.error(f"Could not read CSV: {exc}")
         st.stop()
 
