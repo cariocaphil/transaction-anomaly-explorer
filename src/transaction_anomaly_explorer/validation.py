@@ -1,7 +1,9 @@
 REQUIRED_COLUMNS = {
     "transaction_id",
+    "customer_id",
     "amount",
     "country",
+    "merchant_category",
 }
 
 
