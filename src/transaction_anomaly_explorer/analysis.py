@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.ensemble import IsolationForest
 
 
 def detect_amount_anomalies(df: pd.DataFrame) -> pd.DataFrame:
@@ -11,9 +12,15 @@ def detect_amount_anomalies(df: pd.DataFrame) -> pd.DataFrame:
     return df[df["amount"] > upper_threshold]
 
 
-if __name__ == "__main__":
-    df = pd.read_csv("data/transactions.csv")
+def detect_ml_anomalies(
+    df: pd.DataFrame,
+    contamination: float = 0.06,
+) -> pd.DataFrame:
+    model = IsolationForest(
+        contamination=contamination,
+        random_state=42,
+    )
 
-    anomalies = detect_amount_anomalies(df)
+    predictions = model.fit_predict(df[["amount"]])
 
-    print(anomalies)
+    return df[predictions == -1]

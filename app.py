@@ -2,7 +2,10 @@ import pandas as pd
 import streamlit as st
 from pandas.errors import ParserError
 
-from transaction_anomaly_explorer.analysis import detect_amount_anomalies
+from transaction_anomaly_explorer.analysis import (
+    detect_amount_anomalies,
+    detect_ml_anomalies,
+)
 from transaction_anomaly_explorer.validation import validate_transactions
 
 
@@ -64,7 +67,15 @@ def main():
         st.error(str(error))
         st.stop()
 
-    anomalies = detect_amount_anomalies(df)
+    detection_method = st.radio(
+    "Detection method",
+    ["IQR", "Isolation Forest"],
+)
+
+    if detection_method == "IQR":
+        anomalies = detect_amount_anomalies(df)
+    else:
+        anomalies = detect_ml_anomalies(df)
 
     show_metrics(df, anomalies)
 
