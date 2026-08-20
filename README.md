@@ -41,9 +41,11 @@ transaction-anomaly-explorer/
 ├── src/
 │   └── transaction_anomaly_explorer/
 │       ├── __init__.py
-│       └── analysis.py
+│       ├── analysis.py
+│       └── validation.py
 ├── tests/
-│   └── test_analysis.py
+│   ├── test_analysis.py
+│   └── test_validation.py
 ├── app.py
 ├── Containerfile
 ├── .gitignore
@@ -96,6 +98,25 @@ PYTHONPATH=src uv run streamlit run app.py
 Then open:
 
 `http://localhost:8501`
+
+The application supports two data sources:
+
+* **Sample dataset** — loads the bundled `data/transactions.csv`
+* **Upload CSV** — allows users to analyze their own transaction dataset
+
+Uploaded datasets are validated before analysis.
+
+A valid transaction CSV must contain:
+
+```text
+transaction_id
+customer_id
+amount
+country
+merchant_category
+```
+
+Invalid or empty datasets are rejected with an error message before anomaly detection runs.
 
 ## Run Tests
 
@@ -210,7 +231,7 @@ GitHub Actions
 
 ### Continuous Deployment
 
-The CD workflow automates the manual Azure deployment process after CI succeeds on `main`.
+The CD workflow automates the Azure deployment process after CI succeeds on `main`.
 
 ```text
 Merge to main
@@ -307,8 +328,12 @@ Azure Container Apps
 Streamlit Container
    │
    ├── UI
-   ├── Python application logic
-   └── anomaly visualization
+   │     ├── Sample dataset
+   │     └── CSV upload
+   │
+   ├── Input validation
+   │
+   └── Anomaly analysis
           │
           ▼
    Pandas / ML / LLM
@@ -379,7 +404,7 @@ GitHub Actions automates testing, image creation, registry publishing, and deplo
 - [x] Route ingress to Streamlit on port 8501
 - [x] Verify the application through its public Azure URL
 
-### PR 6 — Continuous Deployment 🚧
+### PR 6 — Continuous Deployment ✅
 
 - [x] Create Microsoft Entra application for GitHub Actions
 - [x] Configure GitHub OIDC federated credential for `main`
@@ -393,7 +418,17 @@ GitHub Actions automates testing, image creation, registry publishing, and deplo
 - [x] Trigger CD after successful CI on `main`
 - [x] Verify the complete automated deployment flow
 
-### PR 7 — ML Anomaly Detection
+### PR 7 — CSV Upload and Validation ✅
+
+- [x] Add sample/upload data-source selection
+- [x] Add CSV file upload to Streamlit
+- [x] Validate required transaction columns
+- [x] Reject empty datasets
+- [x] Handle malformed or unreadable CSV files
+- [x] Add validation tests
+- [x] Keep validation logic separate from the Streamlit UI
+
+### PR 8 — ML Anomaly Detection
 
 - [ ] Add scikit-learn
 - [ ] Experiment with Isolation Forest in Jupyter
@@ -401,14 +436,14 @@ GitHub Actions automates testing, image creation, registry publishing, and deplo
 - [ ] Add anomaly scores
 - [ ] Compare IQR and Isolation Forest results
 
-### PR 8 — AI Anomaly Explanations
+### PR 9 — AI Anomaly Explanations
 
 - [ ] Add LLM integration
 - [ ] Generate human-readable explanations for detected anomalies
 - [ ] Keep anomaly detection separate from LLM explanation
 - [ ] Display explanations in Streamlit
 
-### PR 9 — Natural-Language Analysis
+### PR 10 — Natural-Language Analysis
 
 - [ ] Add a natural-language query interface
 - [ ] Convert user questions into structured filters
@@ -433,6 +468,13 @@ Continuous Integration
       │
       ▼
 Streamlit Application
+      │
+      ├── Sample Data
+      │
+      └── CSV Upload
+      │
+      ▼
+Input Validation
       │
       ▼
 Podman Container
