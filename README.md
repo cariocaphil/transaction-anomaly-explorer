@@ -16,12 +16,13 @@ Current:
 * Ruff
 * Streamlit
 * Podman
+* GitHub Actions CI/CD
+* Microsoft Entra ID / OIDC
 * Azure Container Registry
 * Azure Container Apps
 
 Planned:
 
-* GitHub Actions CD
 * scikit-learn
 * LLM integration
 
@@ -29,6 +30,10 @@ Planned:
 
 ```text
 transaction-anomaly-explorer/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── cd.yml
 ├── data/
 │   └── transactions.csv
 ├── notebooks/
@@ -126,7 +131,7 @@ The container packages the Streamlit application, Python runtime, project depend
 
 ## Azure Deployment
 
-The application is deployed to **Azure Container Apps** using an image stored in **Azure Container Registry (ACR)**.
+The application is deployed to **Azure Container Apps** using a container image stored in **Azure Container Registry (ACR)**.
 
 The deployment flow is:
 
@@ -135,9 +140,6 @@ Source Code
     │
     ▼
 Containerfile
-    │
-    ▼
-Podman Build
     │
     ▼
 Container Image
@@ -155,9 +157,9 @@ Streamlit Application
 Public HTTPS Endpoint
 ```
 
-### Build for Azure
+### Manual Build and Deployment
 
-When building on Apple Silicon, the image must be built explicitly for Linux AMD64 before deployment:
+When building locally on Apple Silicon, the image must be built explicitly for Linux AMD64 before deployment:
 
 ```bash
 podman build \
@@ -172,7 +174,7 @@ podman push \
   transactionanomalyregistry.azurecr.io/transaction-anomaly-explorer:v1
 ```
 
-Azure Container Apps then pulls the image from ACR using managed identity.
+Azure Container Apps pulls the image from ACR using managed identity.
 
 The deployed Container App uses:
 
@@ -184,6 +186,89 @@ Ingress:          External HTTPS
 Target port:      8501
 Registry auth:    Managed identity
 ```
+
+## CI/CD
+
+### Continuous Integration
+
+GitHub Actions runs CI for pushes and pull requests.
+
+The CI workflow:
+
+```text
+Git push / Pull Request
+        │
+        ▼
+GitHub Actions
+        │
+        ├── Ruff
+        └── pytest
+        │
+        ▼
+      Pass / Fail
+```
+
+### Continuous Deployment
+
+The CD workflow automates the manual Azure deployment process after CI succeeds on `main`.
+
+```text
+Merge to main
+      │
+      ▼
+GitHub Actions CI
+      │
+      ▼
+CI succeeds
+      │
+      ▼
+GitHub Actions CD
+      │
+      ├── Authenticate to Azure via OIDC
+      ├── Build Linux AMD64 image
+      ├── Tag image with Git commit SHA
+      ├── Push image to ACR
+      └── Update Azure Container App
+      │
+      ▼
+New Container Apps revision
+      │
+      ▼
+Public Streamlit application
+```
+
+GitHub Actions authenticates to Azure using **OpenID Connect (OIDC)** rather than a stored Azure client password.
+
+A Microsoft Entra application and federated credential establish trust between the GitHub repository's `main` branch and Azure:
+
+```text
+GitHub Actions
+      │
+      │ temporary OIDC token
+      ▼
+Microsoft Entra ID
+      │
+      ▼
+github-transaction-anomaly-cd
+      │
+      ├── Contributor
+      │   └── update Azure resources
+      │
+      └── AcrPush
+          └── push container images to ACR
+```
+
+The GitHub repository provides the Azure identifiers required by the workflow through GitHub Actions secrets:
+
+```text
+AZURE_CLIENT_ID
+AZURE_TENANT_ID
+AZURE_SUBSCRIPTION_ID
+```
+
+No long-lived Azure client secret is required.
+
+Container images are tagged with the Git commit SHA so that a deployed image can be traced back to the exact source-code revision that produced it.
 
 ## Current Anomaly Detection
 
@@ -200,13 +285,24 @@ Transactions above the upper threshold are flagged as anomalies.
 ## Application Architecture
 
 ```text
-Browser
+GitHub
    │
-   │ HTTPS
+   │ CI/CD
+   ▼
+GitHub Actions
+   │
+   │ OIDC
+   ▼
+Microsoft Entra ID
+   │
+   ▼
+Azure Container Registry
+   │
+   │ container image
    ▼
 Azure Container Apps
    │
-   │ ingress → port 8501
+   │ HTTPS ingress → port 8501
    ▼
 Streamlit Container
    │
@@ -216,16 +312,11 @@ Streamlit Container
           │
           ▼
    Pandas / ML / LLM
-
-
-Azure Container Registry
-   │
-   │ container image
-   ▼
-Azure Container Apps
 ```
 
-Podman is used locally to build and test the container image. Azure Container Registry stores the deployable image, while Azure Container Apps provides the managed runtime that runs the Streamlit container.
+Podman is used locally to build and test container images. Azure Container Registry stores deployable images, while Azure Container Apps provides the managed runtime that runs the Streamlit container.
+
+GitHub Actions automates testing, image creation, registry publishing, and deployment.
 
 ## Roadmap
 
@@ -288,15 +379,19 @@ Podman is used locally to build and test the container image. Azure Container Re
 - [x] Route ingress to Streamlit on port 8501
 - [x] Verify the application through its public Azure URL
 
-### PR 6 — Continuous Deployment
+### PR 6 — Continuous Deployment 🚧
 
-- [ ] Add GitHub Actions deployment workflow
-- [ ] Authenticate GitHub Actions with Azure
-- [ ] Build the Linux AMD64 container image automatically
-- [ ] Push versioned images to Azure Container Registry
-- [ ] Deploy the new image to Azure Container Apps
-- [ ] Trigger deployment after successful changes to `main`
-- [ ] Verify the automated deployment flow
+- [x] Create Microsoft Entra application for GitHub Actions
+- [x] Configure GitHub OIDC federated credential for `main`
+- [x] Grant deployment identity `Contributor` access
+- [x] Grant deployment identity `AcrPush` access
+- [x] Configure Azure identifiers as GitHub Actions secrets
+- [x] Add GitHub Actions deployment workflow
+- [x] Build the Linux AMD64 image automatically
+- [x] Push SHA-tagged image to Azure Container Registry
+- [x] Deploy the new image to Azure Container Apps
+- [x] Trigger CD after successful CI on `main`
+- [x] Verify the complete automated deployment flow
 
 ### PR 7 — ML Anomaly Detection
 
@@ -334,7 +429,7 @@ Jupyter Exploration
 Reusable Python Analysis
       │
       ▼
-CI with GitHub Actions
+Continuous Integration
       │
       ▼
 Streamlit Application
@@ -349,7 +444,7 @@ Azure Container Registry
 Azure Container Apps
       │
       ▼
-Continuous Deployment
+OIDC-based Continuous Deployment
       │
       ▼
 ML Anomaly Detection
@@ -361,4 +456,4 @@ LLM Explanations
 Natural-Language Analysis
 ```
 
-The deployment path is intentionally container-based: **Streamlit provides the web application, Podman builds and tests the container image locally, Azure Container Registry stores the image, and Azure Container Apps runs it as a managed cloud workload.**
+The deployment path is intentionally container-based: **Streamlit provides the web application, Podman builds and tests container images locally, Azure Container Registry stores the images, Azure Container Apps runs them as managed cloud workloads, and GitHub Actions automates CI/CD using passwordless OIDC authentication to Azure.**
