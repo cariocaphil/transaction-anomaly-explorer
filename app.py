@@ -2,14 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from transaction_anomaly_explorer.analysis import detect_amount_anomalies
-
-REQUIRED_COLUMNS = {
-    "transaction_id",
-    "customer_id",
-    "amount",
-    "country",
-    "merchant_category",
-}
+from transaction_anomaly_explorer.validation import validate_transactions
 
 st.title("Transaction Anomaly Explorer")
 
@@ -36,17 +29,10 @@ else:
         st.error(f"Could not read CSV: {exc}")
         st.stop()
 
-missing_columns = REQUIRED_COLUMNS - set(df.columns)
-
-if missing_columns:
-    st.error(
-        "CSV is missing required columns: "
-        + ", ".join(sorted(missing_columns))
-    )
-    st.stop()
-
-if df.empty:
-    st.error("CSV contains no transaction rows.")
+try:
+    validate_transactions(df)
+except ValueError as error:
+    st.error(str(error))
     st.stop()
 
 anomalies = detect_amount_anomalies(df)
