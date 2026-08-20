@@ -1,6 +1,6 @@
 # Transaction Anomaly Explorer
 
-A learning project for exploring transaction data and detecting unusual transactions using Python and Pandas.
+A learning project for exploring transaction data and detecting unusual transactions using Python, Pandas, and machine learning.
 
 The project starts with statistical anomaly detection and gradually evolves toward an interactive, containerized, cloud-deployed application with ML and GenAI capabilities.
 
@@ -11,6 +11,7 @@ Current:
 * Python
 * uv
 * Pandas
+* scikit-learn
 * JupyterLab
 * pytest
 * Ruff
@@ -23,7 +24,6 @@ Current:
 
 Planned:
 
-* scikit-learn
 * LLM integration
 
 ## Project Structure
@@ -69,7 +69,10 @@ uv sync
 uv run python src/transaction_anomaly_explorer/analysis.py
 ```
 
-The current analysis uses the **Interquartile Range (IQR)** method to identify unusually high transaction amounts.
+The analysis layer currently supports two anomaly-detection approaches:
+
+* **IQR** — statistical anomaly detection based on the interquartile range
+* **Isolation Forest** — machine-learning-based anomaly detection using scikit-learn
 
 ## Explore with Jupyter
 
@@ -85,7 +88,9 @@ Then open:
 notebooks/transaction_exploration.ipynb
 ```
 
-The notebook is used to explore transaction data, inspect distributions, and experiment with anomaly-detection approaches before moving useful logic into reusable Python modules.
+The notebook is used to explore transaction data, inspect distributions, experiment with anomaly-detection approaches, and compare statistical and ML-based methods before moving useful logic into reusable Python modules.
+
+Isolation Forest was first explored in the notebook before being moved into the reusable application analysis layer.
 
 ## Run the Streamlit App
 
@@ -117,6 +122,13 @@ merchant_category
 ```
 
 Invalid or empty datasets are rejected with an error message before anomaly detection runs.
+
+The application also supports two anomaly-detection methods:
+
+* **IQR**
+* **Isolation Forest**
+
+The detection method can be selected directly in the Streamlit interface.
 
 ## Run Tests
 
@@ -293,7 +305,13 @@ Container images are tagged with the Git commit SHA so that a deployed image can
 
 ## Current Anomaly Detection
 
-The current implementation calculates:
+The application currently provides two anomaly-detection approaches.
+
+### IQR
+
+The statistical approach uses the **Interquartile Range (IQR)**.
+
+It calculates:
 
 ```text
 IQR = Q3 - Q1
@@ -302,6 +320,39 @@ upper threshold = Q3 + 1.5 × IQR
 ```
 
 Transactions above the upper threshold are flagged as anomalies.
+
+This approach uses an explicitly defined statistical rule and is therefore straightforward to understand and interpret.
+
+### Isolation Forest
+
+The ML approach uses scikit-learn's **Isolation Forest** algorithm.
+
+Isolation Forest identifies observations that can be isolated more easily from the rest of the dataset. These observations are treated as potential anomalies.
+
+The current implementation uses transaction `amount` as its input feature:
+
+```python
+model.fit_predict(df[["amount"]])
+```
+
+The double brackets keep the input as a two-dimensional Pandas DataFrame, as expected by scikit-learn:
+
+```text
+          amount
+0          42.50
+1         110.00
+2        7800.00
+...
+```
+
+Isolation Forest returns:
+
+```text
+ 1  → normal transaction
+-1  → anomaly
+```
+
+The Streamlit application allows users to switch between IQR and Isolation Forest and compare the detected anomalies.
 
 ## Application Architecture
 
@@ -329,14 +380,19 @@ Streamlit Container
    │
    ├── UI
    │     ├── Sample dataset
-   │     └── CSV upload
+   │     ├── CSV upload
+   │     └── Detection method
    │
    ├── Input validation
    │
    └── Anomaly analysis
           │
-          ▼
-   Pandas / ML / LLM
+          ├── IQR
+          │
+          └── Isolation Forest
+                 │
+                 ▼
+             scikit-learn
 ```
 
 Podman is used locally to build and test container images. Azure Container Registry stores deployable images, while Azure Container Apps provides the managed runtime that runs the Streamlit container.
@@ -428,13 +484,14 @@ GitHub Actions automates testing, image creation, registry publishing, and deplo
 - [x] Add validation tests
 - [x] Keep validation logic separate from the Streamlit UI
 
-### PR 8 — ML Anomaly Detection
+### PR 8 — ML Anomaly Detection ✅
 
-- [ ] Add scikit-learn
-- [ ] Experiment with Isolation Forest in Jupyter
-- [ ] Implement ML-based anomaly detection
-- [ ] Add anomaly scores
-- [ ] Compare IQR and Isolation Forest results
+- [x] Add scikit-learn
+- [x] Experiment with Isolation Forest in Jupyter
+- [x] Implement reusable ML-based anomaly detection
+- [x] Add tests for ML anomaly detection
+- [x] Add IQR / Isolation Forest selection to Streamlit
+- [x] Compare IQR and Isolation Forest results
 
 ### PR 9 — AI Anomaly Explanations
 
@@ -463,6 +520,10 @@ Jupyter Exploration
       ▼
 Reusable Python Analysis
       │
+      ├── IQR
+      │
+      └── Isolation Forest
+      │
       ▼
 Continuous Integration
       │
@@ -471,7 +532,9 @@ Streamlit Application
       │
       ├── Sample Data
       │
-      └── CSV Upload
+      ├── CSV Upload
+      │
+      └── Detection Method
       │
       ▼
 Input Validation
